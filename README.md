@@ -3,6 +3,7 @@
 Here’s a cleaner, more natural version:
 
 I built this project to make working with large CSV exports easier. In some cases, the original database query could not efficiently handle additional aggregations or calculations, or would take too long to complete. This tool makes it easier to analyze, aggregate, and visualize the exported data locally without relying on increasingly complex queries.
+<img width="1661" height="1025" alt="image" src="https://github.com/user-attachments/assets/5e745c0f-af92-47c7-a70e-13516b15a84b" />
 
 A local CSV and table visualization tool with optional AI-assisted chart generation.
 
