@@ -1,0 +1,89 @@
+# -------------------------
+# Python
+# -------------------------
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Python packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# -------------------------
+# IDE / Editor
+# -------------------------
+
+.vscode/
+.idea/
+
+# -------------------------
+# OS files
+# -------------------------
+
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# -------------------------
+# Local data
+# -------------------------
+
+data/*.csv
+
+# Keep example/sample CSV if needed
+!data/sample.csv
+
+# -------------------------
+# Logs / temporary files
+# -------------------------
+
+*.log
+*.tmp
+*.temp
+
+# -------------------------
+# Environment / secrets
+# -------------------------
+
+.env
+.env.*
+*.env
+
+# -------------------------
+# Test / cache
+# -------------------------
+
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# -------------------------
+# Jupyter
+# -------------------------
+
+.ipynb_checkpoints/
+
+# -------------------------
+# Flask
+# -------------------------
+
+instance/
+
+# -------------------------
+# Local model / large files
+# -------------------------
+
+*.gguf
+*.bin
+models/

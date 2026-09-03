@@ -1,0 +1,666 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Data Chart Generator</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        overflow: hidden;
+
+        font-family: Inter, Arial, sans-serif;
+
+        background: #f5f6f8;
+        color: #1f2937;
+      }
+
+      body {
+        padding: 18px;
+      }
+
+      .app {
+        height: calc(100vh - 36px);
+
+        display: grid;
+        grid-template-rows: auto 1fr;
+
+        gap: 14px;
+
+        max-width: 1600px;
+        margin: 0 auto;
+      }
+
+      /* HEADER */
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .title-area h1 {
+        margin: 0;
+
+        font-size: 22px;
+        font-weight: 700;
+      }
+
+      .title-area p {
+        margin: 3px 0 0;
+
+        font-size: 13px;
+        color: #6b7280;
+      }
+
+      .status {
+        font-size: 13px;
+
+        padding: 7px 12px;
+
+        border-radius: 20px;
+
+        background: white;
+
+        border: 1px solid #e5e7eb;
+      }
+
+      /* WORKSPACE */
+
+      .workspace {
+        min-height: 0;
+
+        display: grid;
+        grid-template-columns: 38% 62%;
+
+        gap: 14px;
+      }
+
+      .panel {
+        min-height: 0;
+
+        background: white;
+
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+
+        overflow: hidden;
+      }
+
+      /* LEFT */
+
+      .left-panel {
+        display: grid;
+        grid-template-rows: auto 1fr;
+      }
+
+      .input-section {
+        padding: 16px;
+
+        border-bottom: 1px solid #e5e7eb;
+      }
+
+      .section-title {
+        font-size: 13px;
+        font-weight: 600;
+
+        margin-bottom: 10px;
+      }
+
+      .input-tabs {
+        display: flex;
+        gap: 8px;
+
+        margin-bottom: 10px;
+      }
+
+      .input-tabs label {
+        cursor: pointer;
+
+        padding: 7px 11px;
+
+        font-size: 12px;
+
+        border-radius: 8px;
+
+        background: #f3f4f6;
+      }
+
+      .input-tabs input {
+        margin-right: 5px;
+      }
+
+      textarea {
+        width: 100%;
+        height: 135px;
+
+        resize: none;
+
+        border: 1px solid #d1d5db;
+        border-radius: 10px;
+
+        padding: 11px;
+
+        font-family: Consolas, monospace;
+
+        font-size: 12px;
+
+        outline: none;
+      }
+
+      textarea:focus,
+      select:focus {
+        border-color: #6b7280;
+      }
+
+      #filePicker {
+        width: 100%;
+        height: 44px;
+
+        margin-top: 4px;
+
+        padding: 0 12px;
+
+        background: white;
+
+        border: 1px solid #d1d5db;
+        border-radius: 10px;
+
+        outline: none;
+      }
+
+      .file-help {
+        margin-top: 7px;
+
+        font-size: 11px;
+        color: #9ca3af;
+      }
+
+      .button-row {
+        display: flex;
+
+        margin-top: 10px;
+
+        gap: 8px;
+      }
+
+      button {
+        border: 0;
+
+        border-radius: 8px;
+
+        padding: 9px 14px;
+
+        cursor: pointer;
+
+        font-weight: 600;
+      }
+
+      .primary-button {
+        background: #111827;
+        color: white;
+      }
+
+      .secondary-button {
+        background: #f3f4f6;
+        color: #374151;
+      }
+
+      button:hover {
+        opacity: 0.9;
+      }
+
+      #error {
+        color: #dc2626;
+
+        font-size: 12px;
+
+        margin-top: 8px;
+      }
+
+      /* PREVIEW */
+
+      .preview-section {
+        min-height: 0;
+
+        display: grid;
+        grid-template-rows: auto 1fr;
+      }
+
+      .preview-header {
+        padding: 12px 16px;
+
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        border-bottom: 1px solid #e5e7eb;
+      }
+
+      .dataset-info {
+        display: flex;
+        gap: 8px;
+      }
+
+      .badge {
+        padding: 5px 9px;
+
+        background: #f3f4f6;
+
+        border-radius: 7px;
+
+        font-size: 11px;
+      }
+
+      .table-wrapper {
+        min-height: 0;
+        overflow: auto;
+      }
+
+      table {
+        width: 100%;
+
+        border-collapse: collapse;
+
+        font-size: 11px;
+      }
+
+      th {
+        position: sticky;
+        top: 0;
+
+        z-index: 1;
+
+        background: #f9fafb;
+
+        text-align: left;
+
+        padding: 8px 10px;
+
+        border-bottom: 1px solid #e5e7eb;
+
+        font-weight: 600;
+      }
+
+      td {
+        padding: 7px 10px;
+
+        border-bottom: 1px solid #f0f1f2;
+
+        white-space: nowrap;
+      }
+
+      tr:hover td {
+        background: #fafafa;
+      }
+
+      /* RIGHT */
+
+      .right-panel {
+        display: grid;
+        grid-template-rows: auto auto 1fr;
+      }
+
+      .chart-controls {
+        padding: 14px 16px;
+
+        display: flex;
+        align-items: end;
+
+        gap: 12px;
+
+        border-bottom: 1px solid #e5e7eb;
+
+        flex-wrap: wrap;
+      }
+
+      .control {
+        display: flex;
+        flex-direction: column;
+
+        gap: 5px;
+      }
+
+      .control label {
+        font-size: 11px;
+        color: #6b7280;
+
+        font-weight: 600;
+      }
+
+      select {
+        min-width: 130px;
+        height: 36px;
+
+        padding: 0 9px;
+
+        background: white;
+
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+
+        outline: none;
+      }
+
+      .generate-button {
+        height: 36px;
+
+        background: #111827;
+        color: white;
+
+        padding: 0 18px;
+      }
+
+      /* CHART */
+
+      .chart-area {
+        min-height: 0;
+
+        padding: 16px;
+
+        position: relative;
+      }
+
+      .chart-placeholder {
+        position: absolute;
+        inset: 0;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        color: #9ca3af;
+
+        font-size: 14px;
+
+        pointer-events: none;
+      }
+
+      #chartContainer {
+        width: 100%;
+        height: 100%;
+      }
+
+      #chart {
+        width: 100% !important;
+        height: 100% !important;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      @media (max-width: 1000px) {
+        html,
+        body {
+          overflow: auto;
+        }
+
+        .app {
+          height: auto;
+        }
+
+        .workspace {
+          grid-template-columns: 1fr;
+        }
+
+        .panel {
+          min-height: 500px;
+        }
+
+        .chart-area {
+          min-height: 450px;
+        }
+      }
+      .ai-bar {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+
+        gap: 10px;
+
+        padding: 12px 16px;
+
+        border-bottom: 1px solid #e5e7eb;
+
+        background: #fafafa;
+      }
+
+      .ai-icon {
+        width: 34px;
+        height: 34px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 9px;
+
+        background: #111827;
+        color: white;
+
+        font-size: 16px;
+      }
+
+      #aiQuestion {
+        height: 38px;
+
+        padding: 0 12px;
+
+        border: 1px solid #d1d5db;
+        border-radius: 9px;
+
+        background: white;
+
+        outline: none;
+
+        font-size: 13px;
+      }
+
+      #aiQuestion:focus {
+        border-color: #6b7280;
+      }
+
+      #aiButton {
+        height: 38px;
+
+        background: #111827;
+        color: white;
+
+        padding: 0 16px;
+      }
+
+      #aiButton:disabled {
+        opacity: 0.5;
+        cursor: wait;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="app">
+      <header class="header">
+        <div class="title-area">
+          <h1>Data Chart Generator</h1>
+
+          <p>Load CSV data, inspect it and generate charts instantly.</p>
+        </div>
+
+        <div class="status" id="status">No dataset loaded</div>
+      </header>
+
+      <main class="workspace">
+        <!-- LEFT PANEL -->
+
+        <section class="panel left-panel">
+          <div class="input-section">
+            <div class="section-title">Data source</div>
+
+            <div class="input-tabs">
+              <label>
+                <input type="radio" name="inputType" value="raw" checked />
+
+                Paste data
+              </label>
+
+              <label>
+                <input type="radio" name="inputType" value="file" />
+
+                Data folder
+              </label>
+            </div>
+
+            <!-- RAW DATA -->
+
+            <div id="rawInputContainer">
+              <textarea
+                id="dataInput"
+                placeholder="Paste CSV, tab-separated or semicolon-separated data..."
+              ></textarea>
+            </div>
+
+            <!-- DATA FOLDER -->
+
+            <div id="fileInputContainer" class="hidden">
+              <select id="filePicker">
+                <option value="">Select CSV file...</option>
+              </select>
+
+              <div class="file-help">
+                CSV files are loaded automatically from the local data folder.
+              </div>
+            </div>
+
+            <div class="button-row">
+              <button class="primary-button" onclick="analyzeData()">
+                Analyze
+              </button>
+
+              <button class="secondary-button" onclick="clearData()">
+                Clear
+              </button>
+
+              <button
+                class="secondary-button"
+                onclick="loadFiles()"
+                id="refreshFilesButton"
+              >
+                Refresh files
+              </button>
+            </div>
+
+            <div id="error"></div>
+          </div>
+
+          <!-- DATA PREVIEW -->
+
+          <div class="preview-section">
+            <div class="preview-header">
+              <div class="section-title" style="margin: 0">Data preview</div>
+
+              <div class="dataset-info" id="datasetInfo">
+                <span class="badge"> Rows: — </span>
+
+                <span class="badge"> Columns: — </span>
+              </div>
+            </div>
+
+            <div class="table-wrapper">
+              <div id="preview"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- RIGHT PANEL -->
+
+        <section class="panel right-panel">
+          <div class="ai-bar">
+            <div class="ai-icon">✦</div>
+
+            <input
+              id="aiQuestion"
+              type="text"
+              placeholder="Ask AI: Show the 10 most common codes..."
+            />
+
+            <button id="aiButton" onclick="generateAIChart()">
+              Generate with AI
+            </button>
+          </div>
+          <div class="chart-controls">
+            <div class="control">
+              <label> Group by </label>
+
+              <select id="xColumn"></select>
+            </div>
+
+            <div class="control">
+              <label> Aggregation </label>
+
+              <select id="aggregation">
+                <option value="count">Count</option>
+
+                <option value="sum">Sum</option>
+
+                <option value="average">Average</option>
+
+                <option value="min">Minimum</option>
+
+                <option value="max">Maximum</option>
+              </select>
+            </div>
+
+            <div class="control">
+              <label> Value </label>
+
+              <select id="yColumn">
+                <option value="">None</option>
+              </select>
+            </div>
+
+            <div class="control">
+              <label> Chart type </label>
+
+              <select id="chartType">
+                <option value="bar">Bar</option>
+
+                <option value="line">Line</option>
+
+                <option value="pie">Pie</option>
+
+                <option value="doughnut">Doughnut</option>
+              </select>
+            </div>
+
+            <button class="generate-button" onclick="generateChart()">
+              Generate chart
+            </button>
+          </div>
+
+          <div class="chart-area">
+            <div class="chart-placeholder" id="chartPlaceholder">
+              Load a dataset to generate a chart
+            </div>
+
+            <div id="chartContainer">
+              <canvas id="chart"></canvas>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>
